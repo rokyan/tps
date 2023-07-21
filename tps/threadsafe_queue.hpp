@@ -50,7 +50,7 @@ bool threadsafe_queue<T>::try_get(T& value)
 
     if (lock.try_lock() && !data.empty())
     {
-        value = data.front();
+        value = std::move(data.front());
         data.pop();
 
         return true;

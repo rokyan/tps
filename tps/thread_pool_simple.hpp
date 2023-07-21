@@ -10,17 +10,17 @@
 namespace tps
 {
 
-class thread_pool final
+class thread_pool_simple final
 {
 private:
     using task_type = std::function<void()>;
 
 public:
-    thread_pool();
+    thread_pool_simple();
 
     void submit(task_type task);
 
-    ~thread_pool();
+    ~thread_pool_simple();
 
 private:
     void run();
@@ -31,21 +31,21 @@ private:
     std::vector<std::jthread> threads;
 };
 
-thread_pool::thread_pool()
+thread_pool_simple::thread_pool_simple()
     : done{ false }
 {
     for (auto hc = std::thread::hardware_concurrency(); hc--; )
     {
-        threads.emplace_back(&thread_pool::run, this);
+        threads.emplace_back(&thread_pool_simple::run, this);
     }
 }
 
-void thread_pool::submit(task_type task)
+void thread_pool_simple::submit(task_type task)
 {
     queue.push(std::move(task));
 }
 
-void thread_pool::run()
+void thread_pool_simple::run()
 {
     while (!done.load())
     {
@@ -62,7 +62,7 @@ void thread_pool::run()
     }
 }
 
-thread_pool::~thread_pool()
+thread_pool_simple::~thread_pool_simple()
 {
     done.store(true);
 }
