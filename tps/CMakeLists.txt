@@ -3,6 +3,9 @@
 #
 cmake_minimum_required (VERSION 3.8)
 
+include_directories ("${CMAKE_SOURCE_DIR}/tps/src")
+include_directories ("${CMAKE_SOURCE_DIR}/tps/demo")
+
 file (GLOB_RECURSE TPS_HEADERS "*.hpp")
 file (GLOB_RECURSE TPS_SOURCES "*.cpp")
 
