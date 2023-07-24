@@ -19,24 +19,14 @@ private:
 public:
     thread_pool_local_queue();
 
+    thread_pool_local_queue(const thread_pool_local_queue&) = delete;
+    thread_pool_local_queue& operator=(const thread_pool_local_queue&) = delete;
+
+    thread_pool_local_queue(thread_pool_local_queue&&) = default;
+    thread_pool_local_queue& operator=(thread_pool_local_queue&&) = default;
+
     template<typename Func>
-    auto submit(Func func)
-    {
-        std::packaged_task<decltype(func())()> task{ std::move(func) };
-
-        auto future = task.get_future();
-
-        if (local_queue != nullptr)
-        {
-            local_queue->push(std::move(task));
-        }
-        else
-        {
-            queue.push(std::move(task));
-        }
-
-        return future;
-    }
+    auto submit(Func func);
 
     void run_pending();
 
@@ -51,5 +41,24 @@ private:
     std::vector<std::jthread> threads;
     static thread_local std::unique_ptr<std::queue<task_type>> local_queue;
 };
+
+template<typename Func>
+auto thread_pool_local_queue::submit(Func func)
+{
+    std::packaged_task<decltype(func())()> task{ std::move(func) };
+
+    auto future = task.get_future();
+
+    if (local_queue != nullptr)
+    {
+        local_queue->push(std::move(task));
+    }
+    else
+    {
+        queue.push(std::move(task));
+    }
+
+    return future;
+}
 
 }

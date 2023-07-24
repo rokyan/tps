@@ -1,8 +1,11 @@
 #pragma once
 
 #include "move_only_task.hpp"
-
+#include "threadsafe_queue.hpp"
 #include <future>
+#include <vector>
+#include <atomic>
+#include <thread>
 
 namespace tps
 {
@@ -14,6 +17,12 @@ private:
 
 public:
     thread_pool_waitable_task();
+
+    thread_pool_waitable_task(const thread_pool_waitable_task&) = delete;
+    thread_pool_waitable_task& operator=(const thread_pool_waitable_task&) = delete;
+
+    thread_pool_waitable_task(thread_pool_waitable_task&&) = default;
+    thread_pool_waitable_task& operator=(thread_pool_waitable_task&&) = default;
 
     template<typename Func>
     auto submit(Func func);
@@ -29,48 +38,17 @@ private:
     std::vector<std::jthread> threads;
 };
 
-thread_pool_waitable_task::thread_pool_waitable_task()
-    : done{ false }
-{
-    for (auto hc = std::thread::hardware_concurrency(); hc--; )
-    {
-        threads.emplace_back(&thread_pool_waitable_task::run, this);
-    }
-}
-
 template<typename Func>
 auto thread_pool_waitable_task::submit(Func func)
 {
     using ret_type = decltype(func());
 
     std::packaged_task<ret_type()> task{ std::move(func) };
-    auto f = task.get_future();
+    auto future = task.get_future();
 
     queue.push(std::move(task));
 
-    return f;
-}
-
-void thread_pool_waitable_task::run()
-{
-    while (!done.load())
-    {
-        task_type task;
-
-        if (queue.try_get(task))
-        {
-            task();
-        }
-        else
-        {
-            std::this_thread::yield();
-        }
-    }
-}
-
-thread_pool_waitable_task::~thread_pool_waitable_task()
-{
-    done.store(true);
+    return future;
 }
 
 }
