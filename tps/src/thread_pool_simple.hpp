@@ -1,7 +1,6 @@
 #pragma once
 
 #include "threadsafe_queue.hpp"
-
 #include <functional>
 #include <atomic>
 #include <thread>
@@ -18,6 +17,12 @@ private:
 public:
     thread_pool_simple();
 
+    thread_pool_simple(const thread_pool_simple&) = delete;
+    thread_pool_simple& operator=(const thread_pool_simple&) = delete;
+
+    thread_pool_simple(thread_pool_simple&&) = default;
+    thread_pool_simple& operator=(thread_pool_simple&&) = default;
+
     void submit(task_type task);
 
     ~thread_pool_simple();
@@ -31,40 +36,5 @@ private:
     std::vector<std::jthread> threads;
 };
 
-thread_pool_simple::thread_pool_simple()
-    : done{ false }
-{
-    for (auto hc = std::thread::hardware_concurrency(); hc--; )
-    {
-        threads.emplace_back(&thread_pool_simple::run, this);
-    }
-}
-
-void thread_pool_simple::submit(task_type task)
-{
-    queue.push(std::move(task));
-}
-
-void thread_pool_simple::run()
-{
-    while (!done.load())
-    {
-        task_type task;
-
-        if (queue.try_get(task))
-        {
-            task();
-        }
-        else
-        {
-            std::this_thread::yield();
-        }
-    }
-}
-
-thread_pool_simple::~thread_pool_simple()
-{
-    done.store(true);
-}
 
 }

@@ -11,7 +11,7 @@ namespace tps
 
 void run_demo_simple()
 {
-    std::cout << "Demo simple" << std::endl;
+    std::cout << "--- Demo simple ---" << std::endl;
 
     tps::thread_pool_simple thread_pool;
 
@@ -24,7 +24,7 @@ void run_demo_simple()
 
 void run_demo_waitable_task()
 {
-    std::cout << "Demo waitable task" << std::endl;
+    std::cout << "--- Demo waitable task ---" << std::endl;
 
     tps::thread_pool_waitable_task thread_pool;
 
@@ -38,7 +38,7 @@ void run_demo_waitable_task()
 
 void run_demo_run_pending()
 {
-    std::cout << "Demo run pending" << std::endl;
+    std::cout << "--- Demo run pending ---" << std::endl;
 
     tps::thread_pool_run_pending thread_pool;
 
@@ -61,7 +61,7 @@ void run_demo_run_pending()
 
 void run_demo_local_queue()
 {
-    std::cout << "Demo local queue" << std::endl;
+    std::cout << "--- Demo local queue ---" << std::endl;
 
     tps::thread_pool_local_queue thread_pool;
 
