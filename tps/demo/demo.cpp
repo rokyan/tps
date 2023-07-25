@@ -3,6 +3,7 @@
 #include "thread_pool_waitable_task.hpp"
 #include "thread_pool_run_pending.hpp"
 #include "thread_pool_local_queue.hpp"
+#include "thread_pool_work_stealing.hpp"
 #include <iostream>
 #include <string>
 
@@ -65,11 +66,9 @@ void run_demo_local_queue()
 
     tps::thread_pool_local_queue thread_pool;
 
-    std::vector<std::future<void>> futures;
-
     for (auto tid = 0U; tid < std::thread::hardware_concurrency(); tid++)
     {
-        auto future = thread_pool.submit([tid, &thread_pool] {
+        thread_pool.submit([tid, &thread_pool] {
             std::this_thread::sleep_for(std::chrono::seconds(tid));
             const std::string message = "Hello from " + std::to_string(tid) + "!\n";
             std::cout << message;
@@ -79,16 +78,32 @@ void run_demo_local_queue()
                 std::cout << message;
             });
         });
-
-        futures.push_back(std::move(future));
     }
 
-    for (auto& future : futures)
+    std::this_thread::sleep_for(std::chrono::seconds(8));
+}
+
+void run_demo_work_stealing()
+{
+    std::cout << "--- Demo work stealing ---" << std::endl;
+
+    tps::thread_pool_work_stealing thread_pool;
+
+    for (auto tid = 0U; tid < std::thread::hardware_concurrency(); tid++)
     {
-        future.get();
+        thread_pool.submit([tid, &thread_pool] {
+            std::this_thread::sleep_for(std::chrono::seconds(tid));
+            const std::string message = "Hello from " + std::to_string(tid) + "!\n";
+            std::cout << message;
+            thread_pool.submit([tid] {
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                const std::string message = "Hello again from " + std::to_string(tid) + "!\n";
+                std::cout << message;
+            });
+        });
     }
 
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+    std::this_thread::sleep_for(std::chrono::seconds(8));
 }
 
 void demo::run_demos()
@@ -97,6 +112,7 @@ void demo::run_demos()
     run_demo_waitable_task();
     run_demo_run_pending();
     run_demo_local_queue();
+    run_demo_work_stealing();
 }
 
 }

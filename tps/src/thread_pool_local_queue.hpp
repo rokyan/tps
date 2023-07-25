@@ -2,7 +2,6 @@
 
 #include "threadsafe_queue.hpp"
 #include "move_only_task.hpp"
-#include <type_traits>
 #include <future>
 #include <atomic>
 #include <memory>
