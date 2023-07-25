@@ -14,7 +14,7 @@ thread_pool_run_pending::thread_pool_run_pending()
 
 void thread_pool_run_pending::run_pending()
 {
-    task_type task;
+    task task;
 
     if (queue.try_get(task))
     {
@@ -31,7 +31,7 @@ void thread_pool_run_pending::run()
 {
     while (!done.load())
     {
-        task_type task;
+        task task;
 
         if (queue.try_get(task))
         {

@@ -1,7 +1,8 @@
 #pragma once
 
 #include "threadsafe_queue.hpp"
-#include "move_only_task.hpp"
+#include "task.hpp"
+
 #include <future>
 #include <atomic>
 #include <memory>
@@ -12,9 +13,6 @@ namespace tps
 
 class thread_pool_local_queue final
 {
-private:
-    using task_type = move_only_task;
-
 public:
     thread_pool_local_queue();
 
@@ -36,9 +34,9 @@ private:
 
 private:
     std::atomic_bool done;
-    threadsafe_queue<task_type> queue;
+    threadsafe_queue<task> queue;
     std::vector<std::jthread> threads;
-    static thread_local std::unique_ptr<std::queue<task_type>> local_queue;
+    static thread_local std::unique_ptr<std::queue<task>> local_queue;
 };
 
 template<typename Func>

@@ -1,7 +1,8 @@
 #pragma once
 
-#include "move_only_task.hpp"
+#include "task.hpp"
 #include "threadsafe_queue.hpp"
+
 #include <future>
 #include <vector>
 #include <atomic>
@@ -12,9 +13,6 @@ namespace tps
 
 class thread_pool_waitable_task final
 {
-private:
-    using task_type = move_only_task;
-
 public:
     thread_pool_waitable_task();
 
@@ -34,7 +32,7 @@ private:
 
 private:
     std::atomic_bool done;
-    threadsafe_queue<task_type> queue;
+    threadsafe_queue<task> queue;
     std::vector<std::jthread> threads;
 };
 

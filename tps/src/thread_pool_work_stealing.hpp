@@ -2,7 +2,8 @@
 
 #include "threadsafe_queue.hpp"
 #include "work_stealing_queue.hpp"
-#include "move_only_task.hpp"
+#include "task.hpp"
+
 #include <thread>
 #include <future>
 #include <atomic>
@@ -14,9 +15,6 @@ namespace tps
 
 class thread_pool_work_stealing final
 {
-private:
-    using task_type = move_only_task;
-
 public:
     thread_pool_work_stealing();
 
@@ -36,16 +34,16 @@ public:
 private:
     void run(std::size_t id);
 
-    bool pop_from_local_queue(task_type& task);
-    bool pop_from_queue(task_type& task);
-    bool pop_from_other_local_queue(task_type& task);
+    bool pop_from_local_queue(task& task);
+    bool pop_from_queue(task& task);
+    bool pop_from_other_local_queue(task& task);
 
 private:
     std::atomic_bool done;
-    threadsafe_queue<task_type> queue;
-    std::vector<std::unique_ptr<work_stealing_queue<task_type>>> local_queues;
+    threadsafe_queue<task> queue;
+    std::vector<std::unique_ptr<work_stealing_queue<task>>> local_queues;
     std::vector<std::jthread> threads;
-    static thread_local work_stealing_queue<task_type>* local_queue;
+    static thread_local work_stealing_queue<task>* local_queue;
     static thread_local std::size_t id;
 };
 

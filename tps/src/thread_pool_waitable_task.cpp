@@ -16,7 +16,7 @@ void thread_pool_waitable_task::run()
 {
     while (!done.load())
     {
-        task_type task;
+        task task;
 
         if (queue.try_get(task))
         {
