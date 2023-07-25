@@ -6,7 +6,7 @@
 namespace tps
 {
 
-class move_only_task final
+class task final
 {
 private:
     class impl_base
@@ -34,18 +34,18 @@ private:
     };
 
 public:
-    move_only_task() = default;
+    task() = default;
 
     template<typename Func>
-    move_only_task(Func func)
+    task(Func func)
         : func{ std::make_unique<impl<Func>>(std::move(func)) }
     {}
 
-    move_only_task(const move_only_task&) = delete;
-    move_only_task& operator=(const move_only_task&) = delete;
+    task(const task&) = delete;
+    task& operator=(const task&) = delete;
 
-    move_only_task(move_only_task&&) = default;
-    move_only_task& operator=(move_only_task&&) = default;
+    task(task&&) = default;
+    task& operator=(task&&) = default;
 
     void operator()()
     {

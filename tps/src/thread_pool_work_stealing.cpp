@@ -3,7 +3,7 @@
 namespace tps
 {
 
-thread_local work_stealing_queue<thread_pool_work_stealing::task_type>* thread_pool_work_stealing::local_queue;
+thread_local work_stealing_queue<task>* thread_pool_work_stealing::local_queue;
 thread_local std::size_t thread_pool_work_stealing::id;
 
 thread_pool_work_stealing::thread_pool_work_stealing()
@@ -13,7 +13,7 @@ thread_pool_work_stealing::thread_pool_work_stealing()
 
     for (auto id = 0U; id < hc; id++)
     {
-        local_queues.push_back(std::make_unique<work_stealing_queue<task_type>>());
+        local_queues.push_back(std::make_unique<work_stealing_queue<task>>());
     }
 
     for (auto id = 0U; id < hc; id++)
@@ -35,7 +35,7 @@ void thread_pool_work_stealing::run(std::size_t id)
 
 void thread_pool_work_stealing::run_pending()
 {
-    task_type task;
+    task task;
 
     if (pop_from_local_queue(task) ||
         pop_from_other_local_queue(task) ||
@@ -49,17 +49,17 @@ void thread_pool_work_stealing::run_pending()
     }
 }
 
-bool thread_pool_work_stealing::pop_from_local_queue(task_type& task)
+bool thread_pool_work_stealing::pop_from_local_queue(task& task)
 {
     return local_queue != nullptr && local_queue->try_pop(task);
 }
 
-bool thread_pool_work_stealing::pop_from_queue(task_type& task)
+bool thread_pool_work_stealing::pop_from_queue(task& task)
 {
     return queue.try_get(task);
 }
 
-bool thread_pool_work_stealing::pop_from_other_local_queue(task_type& task)
+bool thread_pool_work_stealing::pop_from_other_local_queue(task& task)
 {
     for (auto idx = 0U; idx < std::size(local_queues); idx++)
     {

@@ -3,7 +3,7 @@
 namespace tps
 {
 
-thread_local std::unique_ptr<std::queue<thread_pool_local_queue::task_type>> thread_pool_local_queue::local_queue;
+thread_local std::unique_ptr<std::queue<task>> thread_pool_local_queue::local_queue;
 
 thread_pool_local_queue::thread_pool_local_queue()
     : done{ false }
@@ -17,7 +17,7 @@ thread_pool_local_queue::thread_pool_local_queue()
 
 void thread_pool_local_queue::run()
 {
-    local_queue = std::make_unique<std::queue<task_type>>();
+    local_queue = std::make_unique<std::queue<task>>();
 
     while (!done.load())
     {
@@ -27,7 +27,7 @@ void thread_pool_local_queue::run()
 
 void thread_pool_local_queue::run_pending()
 {
-    task_type task;
+    task task;
 
     if (local_queue != nullptr && !local_queue->empty())
     {
